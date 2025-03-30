@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+	<script src="webui.js"></script>
+    <title>知乎问答网页保存</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+        .window {
+            background: #ece9d8;
+            border: 2px solid #666;
+            padding: 15px;
+            width: 800px;
+        }
+        .section {
+            margin-bottom: 15px;
+        }
+        .row {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .column {
+            flex: 1;
+            padding: 10px;
+        }
+        input[type="text"] {
+            width: 300px;
+            margin: 0 10px;
+            background: white;
+            border: 1px solid #999;
+            padding: 2px 5px;
+        }
+        button {
+            padding: 3px 12px;
+            margin: 0 5px;
+            background: #e1e1e1;
+            border: 1px solid #666;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #d0d0d0;
+        }
+        fieldset {
+            border: 1px solid #999;
+            margin: 10px 0;
+            padding: 10px;
+        }
+        legend {
+            font-weight: bold;
+            color: #444;
+        }
+        .footer {
+            margin-top: 15px;
+            border-top: 1px solid #999;
+            padding-top: 10px;
+            font-size: 0.9em;
+        }
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .file-input {
+            opacity: 0;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 120px;
+            height: 24px;
+            cursor: pointer;
+        }
+        .file-path {
+            width: 280px;
+            margin-left: 10px;
+            background: white;
+            border: 1px solid #999;
+            padding: 2px 5px;
+            pointer-events: none;
+        }
+		
+		.radio-container {
+            display: inline-block;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="window">
+        <h3>知乎问答网页保存</h3>
+        
+        <div class="section">
+            <div class="row">
+                输入
+                <div class="file-input-wrapper">
+                    <input type="file" class="file-input" id="fileInput" accept=".html,.htm">
+                    <button>选择文件</button>
+                    <input type="text" id="filePath" style="width: 360px" placeholder="选择一个本地保存的网页文件">
+                </div>
+            </div>
+           
+			
+			 <div class="row">
+				第&nbsp; <b><span id="answers_cnt"  > 1 </span></b> &nbsp;个回答，
+				<b>作者：</b><input type="text" id="answer_author" value="？" style="width: 200px; margin-left: 20px", readonly>
+				<button id="next_answer" OnClick="next_answer_func();" style="margin-left: 20px", disabled>下一个回答</button>
+			  </div>
+			  
+			 <div class="row">
+				<button OnClick="common_run();" >生成网页</button>
+				<button id="open_answer" OnClick="open_result_html();" style="margin-left: 20px", disabled>打开网页</button>
+				<button OnClick="open_help();" style="margin-left: 20px">帮助</button>
+            </div>
+			
+			<div class="row">
+				输出：<span id="out_name">out.html</span>
+            </div>
+        </div>
+
+    </div>
+   
+   
+	<div class="window">	
+	<!-- 使用 iframe 嵌入本地 HTML 网页 -->
+		<iframe  id="source_html" width="800" height="500">
+			您的浏览器不支持 iframe 标签。
+		</iframe>
+	 </div>
+	
+    </div>
+
+    <script>
+		let contents;
+		let file_size;
+		let current_file;
+		let iframe;
+		
+		iframe = document.getElementById('source_html');
+		const out_file_name = document.getElementById('out_name');
+		const answers_cnt = document.getElementById('answers_cnt');
+		const answer_author = document.getElementById('answer_author');
+		const next_answer = document.getElementById('next_answer');
+		const open_answer = document.getElementById('open_answer');
+		
+		
+		function open_help() {
+            // 使用 window.open() 方法打开指定网页
+            window.open('help.html', '_blank');
+        }
+		
+        // 文件选择处理
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+			current_file = this.files[0];
+            const fileName = current_file?.name || '未选择文件';
+            document.getElementById('filePath').value = fileName;
+			
+			if (current_file) {
+				next_answer.disabled = true;
+				open_answer.disabled = true;
+				answers_cnt.textContent = 1;
+				
+			//reader 用于 readAsArrayBuffer，传给c代码，最终显示处理后的网页
+                const reader = new FileReader();
+                reader.onload = function (e) {
+					contents = new Uint8Array(e.target.result);
+					file_size = current_file.size;
+                };
+				reader.readAsArrayBuffer(current_file);
+				
+			//textreader 用于 readAsText， 显示原始网页
+				const textreader = new FileReader();
+                textreader.onload = function (e) {
+					const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(e.target.result);
+					iframe.src = dataUrl;
+                };
+				textreader.readAsText(current_file);
+				
+            }
+			
+        });
+
+        // 按钮悬停效果
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mouseover', () => btn.style.background = '#d0d0d0');
+            btn.addEventListener('mouseout', () => btn.style.background = '#e1e1e1');
+        });
+		
+		function common_run(flag) {
+			if(file_size === undefined) {
+				alert("请选择网页文件");
+				return;
+			}
+
+			
+			const parts = current_file.name.split('.');
+			const extension = parts.pop();
+			const fname = parts.join('.');
+
+			title = fname + "_out";
+			//document.getElementById('path_out').value = title + ".html";
+				
+		    parser_zhihu_answers(contents, file_size, title).then((response) => {
+				open_answer.disabled = false;
+				//response = total answer number, current answer index, author name, output path
+				split_ary = response.split(",");
+				out_file_name.textContent = split_ary[3];
+				
+				total_answer_cnt = split_ary[0];
+				answers_cnt.textContent = split_ary[1];
+				answer_author.value = split_ary[2];
+				iframe.src =  split_ary[3];
+				
+				if(total_answer_cnt > 1)
+					next_answer.disabled = false;
+				else
+					next_answer.disabled = true;
+		    });
+		  }
+		  
+		function open_result_html() {
+            window.open(out_file_name.textContent, '_blank');
+		}
+		
+		
+		function next_answer_func() {
+			get_next_answer().then((response) => {
+				split_ary = response.split(",");
+				out_file_name.textContent = split_ary[3];
+				
+				total_answer_cnt = split_ary[0];
+				answers_cnt.textContent = split_ary[1];
+				answer_author.value = split_ary[2];
+				iframe.src =  split_ary[3];
+				
+			});
+		}
+		  
+    </script>
+</body>
+</html>

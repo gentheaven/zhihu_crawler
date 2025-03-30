@@ -1,0 +1,43 @@
+
+2025/2/27 更新：
+这是之前的版本。
+从现在开始，只支持图形界面GUI， 只支持 Windwos，并且改为 lexbor 开源库。
+之前采用 myhtml 库，现在用 lexbor 库。
+
+mac:
+	cd mycode
+	make
+
+win10:
+	VS2019编译
+
+编译结果：
+	zhihu_crawler
+
+依赖：
+	curl
+
+运行：
+	仅仅下载文本
+	./zhihu_crawler https://www.zhihu.com/question/431824510/answer/1646701379
+	会把网页的内容保存到文件中： novel_cn.txt 
+	
+	下载文本和图片，生成文件1.html
+	./zhihu_crawler https://www.zhihu.com/question/26032781/answer/170489532 html
+
+
+目录结构说明
+	include: myhtml库的头文件
+	lib: myhtml库编译的结果
+		其中mac版本，macos 10.15.7(Catalina), Intel架构下编译的结果
+	libsrc: myhtml库的源代码，仅供参考
+		如果想在ARM版本的机器上使用，可能需要重新编译
+		Name: myhtml
+		Description: Fast C/C++ HTML 5 Parser. Using threads.
+		Version: 4.0.5
+
+	mycode: 这个项目实际代码所在地
+
+========================================================
+
+

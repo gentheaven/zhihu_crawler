@@ -1,0 +1,20 @@
+进入 zhihu_crawler.exe 所在目录，
+启动服务器，通过鼠标双击文件 
+start.bat 
+
+
+浏览器端：
+启动后，你可以在浏览器中输入 
+http://localhost:8000/temp/out.html 
+来访问该目录下的文件。
+
+然后就可以拷贝文字和图片内容。
+ctrl a
+ctrl c
+ctrl v
+
+
+
+
+
+

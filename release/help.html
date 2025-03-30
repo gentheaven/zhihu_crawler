@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+	<script src="webui.js"></script>
+    <title>帮助文档</title>
+	
+</head>
+
+
+<body>
+<h1> 基本用法 </h1>
+	<P> 2024年开始，知乎网站加入反爬虫机制，所以不能用 curl 下载知乎网页的内容。 </P>
+	<P> 如果在知乎网上看到一个回答很好，想保存下来，怎么办？</P>
+	<P> 比如：</P>
+	<p> <a href="https://www.zhihu.com/question/5073499722/answer/40533676669">中信建投发布研报称「中国房价有望在 2026 年前后止跌回稳」，怎样看待这一预测 </a> </p>
+	<P> 如果现在想保存这个回答，应该如何做？</P>
+	<br>
+	<P> 本工具就可以实现这个功能</P>
+	<P> 1. 先用浏览器打开这个链接，然后保存这个网页 </P>
+	<P>    Windows Edge 浏览器： ctrl + s， 就可以保存当前网页 </P>
+	<P> 这里假设保存的文件名是： question.html </P>
+	<br>
+	<P> 2. 运行程序 zhihu_crawler.exe； </P>
+	<P>   选择刚才保存的文件，例如 question.html</P>
+	<br>
+	<P> 3. 点击生成网页，就会在当前目录的 temp 子目录（程序自动创建的）下，</P>
+	<P> 看到生成的文件 out.html</P>
+	<P> 这个文件的内容可以随便拷贝，例如拷贝到邮件中，发给自己，保存下来</P>
+	<P> </P>
+<hr>
+<h1> 拷贝网页内容时，包含图片 </h1>
+	<p> 需要安装 python </p>
+	<p> 生成网页后，双击运行 start.bat 启动http 服务（和zhihu_crawler.exe 在同一目录下）</p>
+	<p> 启动 http 服务器后 </p>
+	<p> 浏览器端： 在浏览器中输入 <a href="http://localhost:8000/temp/out.html "> 访问生成的知乎问答网页 </a> </p>
+	<p> 然后就可以拷贝文字和图片内容 </p>
+	<p> ctrl a,
+	ctrl c,
+	ctrl v
+	</p>
+	
+
+</body>
+</html>
