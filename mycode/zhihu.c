@@ -250,6 +250,7 @@ void handle_hx(FILE* fp, lxb_dom_node_t* node)
 	}
 }
 
+
 /*
 * https://www.zhihu.com/question/505806181/answer/2270814119
 <p data-pid="d7gDKpxF">xxx</p>
@@ -295,6 +296,8 @@ void handle_div_ahref(FILE* fp, lxb_dom_node_t* node)
 	for (i = 0; i < len; i++) {
 		ela = lxb_dom_collection_element(link, i);
 		str = (lxb_char_t*)lxb_dom_element_get_attribute(ela, "href", 4, &str_len);
+		if (strstr(str, "https://zhida.zhihu.com/search?"))
+				continue;
 		text = (lxb_char_t*)lxb_dom_element_get_attribute(ela, "data-text", 9, &str_len);
 		if (str) {
 			if (text)

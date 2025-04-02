@@ -279,6 +279,14 @@ char* create_latex_str(lxb_dom_element_t* node, size_t* len)
 		return NULL;
 	}
 
+	//https://www.zhihu.com/question/6562258467/answer/1889681827679170692
+	//\( \), not change
+	if (strstr(extra, "\\(")) {
+		strcpy(latex_string, extra);
+		goto exit;
+	}
+	
+
 	int new_line = 0;
 	val_len = strlen(extra);
 	if (strstr(extra, "{aligned}")) {
@@ -308,6 +316,7 @@ char* create_latex_str(lxb_dom_element_t* node, size_t* len)
 	//remove displaystyle{}
 	change_latex_displaystyle(latex_string, sizeof(latex_string));
 
+exit:
 	if (len)
 		*len = strlen(latex_string);
 	return latex_string;
