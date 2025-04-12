@@ -153,48 +153,6 @@ static void download_image(FILE* fp, lxb_dom_node_t* node)
 	exec_curl(OUTPUT_PATH, file_name, path);
 }
 
-/*
- <ul>
-	<li data-pid="sf0I4YBa">操作系统: Linux/Windows (推荐 Ubuntu 20.04+)<br> </li>
-	<li data-pid="dAD02Yj9">Python: 3.8+<br> </li>
-	<li data-pid="Aug9wbMu"><span><a class
-	<li data-pid="4IteDlwe">GPU: 显存 ≥16GB (Janus-Pro-7B需≥24GB)<br> </li>
-	<li data-pid="7RgLuVNM">存储空间: ≥30GB 可用空间<br> </li>
-</ul>
-*/
-void handle_ul(FILE* fp, lxb_dom_node_t* node)
-{
-	lxb_dom_collection_t* collection;
-	collection = get_nodes_by_tag(node, "li");
-	if (!collection)
-		return;
-
-	lxb_char_t* tag_name;
-	size_t str_len;
-	tag_name = (lxb_char_t*)lxb_dom_node_name(node, &str_len);
-	if (!tag_name) {
-		lxb_dom_collection_destroy(collection, true);
-		return;
-	}
-
-	fprintf(fp, "\n<%s>\n", tag_name);
-
-	size_t i;
-	size_t len = lxb_dom_collection_length(collection);
-	lxb_dom_element_t* element;
-	lxb_char_t* str;
-	for (i = 0; i < len; i++) {
-		element = lxb_dom_collection_element(collection, i);
-		str = lxb_dom_node_text_content(lxb_dom_interface_node(element), &str_len);
-		if (str)
-			fprintf(fp, "<li>%s</li>\n", str);
-	}
-	fprintf(fp, "</%s>\n", tag_name);
-
-	lxb_dom_collection_destroy(collection, true);
-}
-
-
 //<code class="language-js">
 void handle_code(FILE* fp, lxb_dom_node_t* node)
 {
@@ -326,9 +284,11 @@ void handle_div_ahref(FILE* fp, lxb_dom_node_t* node)
 
 Recursion way to get all content and write to fp
 */
-static void write_html_body(FILE* fp, lxb_dom_node_t* node)
+static lexbor_action_t write_html_body(FILE* fp, lxb_dom_node_t* node)
 {
+	lexbor_action_t ret = LEXBOR_ACTION_OK;
 	lxb_tag_id_t tag = lxb_dom_node_tag_id(node);
+
 	switch (tag) {
 	case LXB_TAG_P:
 		serialize_node(node, fp);
@@ -356,16 +316,18 @@ static void write_html_body(FILE* fp, lxb_dom_node_t* node)
 	case LXB_TAG_TABLE:
 		serialize_node(node, fp);
 		break;
-	case LXB_TAG_UL:
+	case LXB_TAG_UL:	
 	case LXB_TAG_OL:
 		serialize_node(node, fp);
-		break;
+		ret = LEXBOR_ACTION_NEXT;
 	case LXB_TAG_HR:
 		fprintf(fp, "<hr>\n");
 		break;
 	default:
 		break;
 	}
+
+	return ret;
 }
 
 
@@ -503,8 +465,7 @@ lexbor_action_t interest_walker(lxb_dom_node_t* node, void* ctx)
 	}
 
 	FILE* fp = (FILE*)ctx;
-	write_html_body(fp, node);
-	return LEXBOR_ACTION_OK;
+	return write_html_body(fp, node);
 }
 
 /*
