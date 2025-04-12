@@ -358,7 +358,7 @@ static void write_html_body(FILE* fp, lxb_dom_node_t* node)
 		break;
 	case LXB_TAG_UL:
 	case LXB_TAG_OL:
-		handle_ul(fp, node);
+		serialize_node(node, fp);
 		break;
 	case LXB_TAG_HR:
 		fprintf(fp, "<hr>\n");
